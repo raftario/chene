@@ -22,12 +22,12 @@ export interface RouterContext extends Context {
 }
 
 /** Route handler input */
-type Input<Route extends string, Ctx extends RouterContext> = Ctx & {
+type Input<const Route extends string, Ctx extends RouterContext> = Ctx & {
   path: Match<Route>
 }
 
 /** Transform to apply to the route handler context */
-type Transform<Route extends string, Ctx extends RouterContext, Nxt> = (
+type Transform<const Route extends string, Ctx extends RouterContext, Nxt> = (
   chain: Chain<Ctx, Response, Input<Route, Ctx>>,
 ) => Chain<Ctx, Response, Nxt>
 /** Route handler */
@@ -147,11 +147,11 @@ export class Router<Ctx extends RouterContext = RouterContext>
     return new Router(this.#routes, this.#chain.catch(errorHandler))
   }
 
-  get<Route extends `/${string}`>(
+  get<const Route extends `/${string}`>(
     route: Route,
     handler: Handler<Input<Route, Ctx>>,
   ): this
-  get<Route extends `/${string}`, Nxt>(
+  get<const Route extends `/${string}`, Nxt>(
     route: Route,
     transform: Transform<Route, Ctx, Nxt>,
     handler: Handler<Nxt>,
@@ -161,11 +161,11 @@ export class Router<Ctx extends RouterContext = RouterContext>
     return this.#method("GET", route, transformOrHandler, maybeHandler)
   }
 
-  post<Route extends `/${string}`>(
+  post<const Route extends `/${string}`>(
     route: Route,
     handler: Handler<Input<Route, Ctx>>,
   ): this
-  post<Route extends `/${string}`, Nxt>(
+  post<const Route extends `/${string}`, Nxt>(
     route: Route,
     transform: Transform<Route, Ctx, Nxt>,
     handler: Handler<Nxt>,
@@ -175,11 +175,11 @@ export class Router<Ctx extends RouterContext = RouterContext>
     return this.#method("POST", route, transformOrHandler, maybeHandler)
   }
 
-  patch<Route extends `/${string}`>(
+  patch<const Route extends `/${string}`>(
     route: Route,
     handler: Handler<Input<Route, Ctx>>,
   ): this
-  patch<Route extends `/${string}`, Nxt>(
+  patch<const Route extends `/${string}`, Nxt>(
     route: Route,
     transform: Transform<Route, Ctx, Nxt>,
     handler: Handler<Nxt>,
@@ -189,11 +189,11 @@ export class Router<Ctx extends RouterContext = RouterContext>
     return this.#method("PATCH", route, transformOrHandler, maybeHandler)
   }
 
-  put<Route extends `/${string}`>(
+  put<const Route extends `/${string}`>(
     route: Route,
     handler: Handler<Input<Route, Ctx>>,
   ): this
-  put<Route extends `/${string}`, Nxt>(
+  put<const Route extends `/${string}`, Nxt>(
     route: Route,
     transform: Transform<Route, Ctx, Nxt>,
     handler: Handler<Nxt>,
@@ -203,11 +203,11 @@ export class Router<Ctx extends RouterContext = RouterContext>
     return this.#method("PUT", route, transformOrHandler, maybeHandler)
   }
 
-  delete<Route extends `/${string}`>(
+  delete<const Route extends `/${string}`>(
     route: Route,
     handler: Handler<Input<Route, Ctx>>,
   ): this
-  delete<Route extends `/${string}`, Nxt>(
+  delete<const Route extends `/${string}`, Nxt>(
     route: Route,
     transform: Transform<Route, Ctx, Nxt>,
     handler: Handler<Nxt>,
