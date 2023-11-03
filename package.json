@@ -1,0 +1,86 @@
+{
+  "name": "chene",
+  "version": "0.0.0",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "contributors": [
+    "Raphaël Thériault <self@raftar.io>"
+  ],
+  "description": "a good web framework",
+  "repository": "raftario/chene",
+  "type": "module",
+  "exports": {
+    ".": "./dist/node/index.js",
+    "./body": "./dist/node/body.js",
+    "./chain": "./dist/node/chain.js",
+    "./jsx-runtime": "./dist/node/jsx-runtime.js",
+    "./logging": "./dist/node/logging.js",
+    "./middleware": "./dist/node/middleware.js",
+    "./response": "./dist/node/response.js",
+    "./router": "./dist/node/router.js",
+    "./url": "./dist/node/url.js",
+    "./validation": "./dist/node/validation.js",
+    "./node": "./dist/node/index.js",
+    "./otel": "./dist/node/otel.js"
+  },
+  "files": [
+    "./README.md",
+    "./LICENSE.md",
+    "./src/",
+    "./dist/node/"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "lint": "prettier --check . && eslint --ignore-path .gitignore .",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
+  },
+  "publishConfig": {
+    "provenance": true
+  },
+  "dependencies": {
+    "content-type": "^1.0.0",
+    "preact": "^10.18.0",
+    "preact-render-to-string": "^6.2.0",
+    "statuses": "^2.0.0",
+    "zod": "^3.22.0"
+  },
+  "peerDependencies": {
+    "@opentelemetry/api": "^1.3.0"
+  },
+  "peerDependenciesMeta": {
+    "@opentelemetry/api": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@opentelemetry/api": "^1.6.0",
+    "@opentelemetry/sdk-metrics": "^1.17.0",
+    "@opentelemetry/sdk-node": "^0.44.0",
+    "@opentelemetry/sdk-trace-base": "^1.17.0",
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.2.0",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@tsconfig/strictest": "^2.0.0",
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/content-type": "^1.1.0",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.8.0",
+    "@types/statuses": "^2.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.8.0",
+    "@typescript-eslint/parser": "^6.8.0",
+    "better-sqlite3": "^9.0.0",
+    "cross-env": "^7.0.0",
+    "eslint": "^8.52.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "eslint-plugin-tsdoc": "^0.2.17",
+    "jest": "^29.7.0",
+    "kysely": "^0.26.0",
+    "prettier": "^3.0.0",
+    "rollup": "^4.2.0",
+    "rollup-plugin-node-externals": "^6.1.0",
+    "ts-jest": "^29.1.0",
+    "tslib": "^2.6.0",
+    "typescript": "^5.2.0"
+  }
+}

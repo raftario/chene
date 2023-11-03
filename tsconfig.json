@@ -1,0 +1,22 @@
+{
+  "extends": ["@tsconfig/strictest/tsconfig.json"],
+  "include": ["src", "examples", "package.json"],
+  "compilerOptions": {
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "resolveJsonModule": true,
+
+    "exactOptionalPropertyTypes": false,
+
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
+
+    "paths": {
+      "chene": ["./src/index.ts"],
+      "chene/node": ["./src/node.ts"],
+      "chene/otel": ["./src/otel.ts"]
+    }
+  }
+}

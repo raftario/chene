@@ -1,0 +1,45 @@
+{
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended-type-checked",
+        "plugin:@typescript-eslint/stylistic-type-checked",
+        "prettier"
+      ],
+      "plugins": ["simple-import-sort", "tsdoc"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": true
+      },
+      "rules": {
+        "@typescript-eslint/consistent-type-imports": [
+          "warn",
+          {
+            "prefer": "type-imports",
+            "fixStyle": "inline-type-imports"
+          }
+        ],
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "simple-import-sort/imports": "warn",
+        "simple-import-sort/exports": "warn",
+        "tsdoc/syntax": "error"
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "extends": ["eslint:recommended", "prettier"],
+      "plugins": ["simple-import-sort"],
+      "parserOptions": {
+        "sourceType": "module",
+        "ecmaVersion": 2023
+      },
+      "rules": {
+        "simple-import-sort/imports": "warn",
+        "simple-import-sort/exports": "warn"
+      }
+    }
+  ],
+  "root": true
+}
