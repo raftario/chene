@@ -22,12 +22,12 @@ export interface RouterContext extends Context {
 }
 
 /** Route handler input */
-type Input<const Route extends string, Ctx extends RouterContext> = Ctx & {
+type Input<Route extends string, Ctx extends RouterContext> = Ctx & {
   path: Match<Route>
 }
 
 /** Transform to apply to the route handler context */
-type Transform<const Route extends string, Ctx extends RouterContext, Nxt> = (
+type Transform<Route extends string, Ctx extends RouterContext, Nxt> = (
   chain: Chain<Ctx, Response, Input<Route, Ctx>>,
 ) => Chain<Ctx, Response, Nxt>
 /** Route handler */
