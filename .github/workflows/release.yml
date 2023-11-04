@@ -11,10 +11,13 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       VERSION: ${{ github.event.inputs.version }}
       TAG: ${{ github.event.inputs.tag }}
       BRANCH: v${{ github.event.inputs.version }}-${{ github.event.inputs.tag }}
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
