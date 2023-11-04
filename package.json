@@ -29,6 +29,7 @@
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "publishConfig": {
+    "access": "public",
     "provenance": true
   },
   "dependencies": {
