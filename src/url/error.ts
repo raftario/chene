@@ -1,6 +1,6 @@
 import { type ZodError } from "zod"
 
-export class UrlError extends Error {
+export abstract class UrlError extends Error {
   constructor(message?: string, options?: ErrorOptions) {
     super(message, options)
 

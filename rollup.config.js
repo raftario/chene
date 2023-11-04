@@ -20,7 +20,14 @@ export default [
     plugins: [
       nodeExternals({ deps: true, peerDeps: true, devDeps: false }),
       typescript({
-        compilerOptions: { declaration: true, declarationDir: "dist/node" },
+        outputToFilesystem: true,
+        cacheDir: "node_modules/.rollup",
+        tsconfig: "src/tsconfig.json",
+        compilerOptions: {
+          module: "Node16",
+          declaration: true,
+          declarationDir: "dist/node",
+        },
       }),
       json({ preferConst: true }),
     ],
@@ -39,7 +46,14 @@ export default [
       nodeResolve(),
       commonjs(),
       typescript({
-        compilerOptions: { declaration: true, declarationDir: "dist/deno" },
+        outputToFilesystem: true,
+        cacheDir: "node_modules/.rollup",
+        tsconfig: "src/tsconfig.json",
+        compilerOptions: {
+          module: "Node16",
+          declaration: true,
+          declarationDir: "dist/deno",
+        },
       }),
       json({ preferConst: true }),
     ],

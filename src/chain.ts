@@ -1,5 +1,4 @@
-import { type Awaitable } from "chene"
-
+import { type Awaitable } from "./index.js"
 import { type AsMiddleware, asMiddleware, type Middleware } from "./middleware.js"
 
 export type ErrorHandler<I, O> = (error: unknown, input: I) => Awaitable<O>

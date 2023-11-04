@@ -11,7 +11,8 @@
       "plugins": ["simple-import-sort", "tsdoc"],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
-        "project": true
+        "project": true,
+        "EXPERIMENTAL_useSourceOfProjectReferenceRedirect": true
       },
       "rules": {
         "@typescript-eslint/consistent-type-imports": [

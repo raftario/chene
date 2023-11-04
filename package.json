@@ -22,7 +22,7 @@
     "./dist/node/"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c --forceExit",
     "docs": "typedoc",
     "lint": "prettier --check . && eslint --ignore-path .gitignore .",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
