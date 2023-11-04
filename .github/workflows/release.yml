@@ -1,0 +1,34 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+      tag:
+        required: true
+        default: latest
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+
+      - run: npm run build
+      - name: prepare branch and commit
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          echo "!dist/deno/" >> .gitignore
+          git add .
+          git checkout -b v${{ github.event.inputs.version }}-${{ github.event.inputs.tag }}
+
+      - run: npm version ${{ github.event.inputs.version}}
+      - run: npm run publish --tag ${{ github.event.inputs.tag }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
