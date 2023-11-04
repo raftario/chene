@@ -11,13 +11,11 @@ export class UrlError extends Error {
   }
 }
 
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 export class QueryValidationError extends Error {
+  override readonly cause: ZodError
+
   constructor(options: { cause: ZodError }) {
     super("Invalid query string", options)
+    this.cause = options.cause
   }
 }
-export interface QueryValidationError {
-  cause: ZodError
-}
-/* eslint-enable @typescript-eslint/no-unsafe-declaration-merging */

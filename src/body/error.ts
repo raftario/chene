@@ -20,13 +20,11 @@ export class BodyTypeError extends Error {
   }
 }
 
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 export class BodyValidationError extends Error {
+  override readonly cause: ZodError
+
   constructor(options: { cause: ZodError }) {
     super("Invalid body", options)
+    this.cause = options.cause
   }
 }
-export interface BodyValidationError {
-  cause: ZodError
-}
-/* eslint-enable @typescript-eslint/no-unsafe-declaration-merging */

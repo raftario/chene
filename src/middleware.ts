@@ -1,6 +1,8 @@
 /**
  * A middleware is a function that encapsulates another function and transforms it
  *
+ * @remarks
+ *
  * They can both transform the input and output of the function,
  * and add additional functionality around it.
  *

@@ -60,6 +60,8 @@ type StoredMethods = Record<Method, StoredMethodHandler | undefined>
 /**
  * A router is a middleware that routes requests to other middlewares based on their method and path
  *
+ * @remarks
+ *
  * Routes can contain parameters
  *
  * This router is based on a prefix tree which means the order in which routes are registered

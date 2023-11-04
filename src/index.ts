@@ -49,13 +49,13 @@ export interface ServeOptions {
   /**
    * Port to listen on
    *
-   * A random available port will be selected if not provided.
+   * @defaultValue random available port
    */
   port?: number
   /**
    * Hostname or IP address or interface to listen on
    *
-   * The server will listen on `localhost` i f not provided.
+   * @defaultValue `"localhost"`
    */
   hostname?: string
   /** Signal usable to shutdown the server */
@@ -63,7 +63,7 @@ export interface ServeOptions {
   /**
    * Called when an unhandled error occurs
    *
-   * `console.error` will be used if not provided.
+   * @defaultValue {@link console.error}
    *
    * @param error - Unhandled error
    */
@@ -95,6 +95,8 @@ export interface V8Server extends Server {
   /**
    * References the server within the engine
    *
+   * @remarks
+   *
    * The server will prevent the program from exiting until it is shutdown.
    *
    * This is the default behaviour.
@@ -102,6 +104,8 @@ export interface V8Server extends Server {
   ref(): void
   /**
    * Unreferences the server within the engine
+   *
+   * @remarks
    *
    * The server will not prevent the program from exiting even if it is not shutdown.
    */
@@ -117,5 +121,5 @@ export { type Router, router } from "./router.js"
 export * as url from "./url.js"
 /** JSX node */
 export { type VNode as Node } from "preact"
-/** See the [Zod documentation](https://zod.dev) */
+/** @see [Zod documentation](https://zod.dev) */
 export { z } from "zod"
