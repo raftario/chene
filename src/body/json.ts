@@ -1,7 +1,7 @@
 import { type z, type ZodType } from "zod"
 
-import { type Context, type Json } from "../index.js"
 import { type Middleware } from "../middleware.js"
+import { type Context, type Json } from "../mod.js"
 import { BodyTypeError, BodyValidationError } from "./error.js"
 
 export function json<I extends Context, O>(): Middleware<I, O, I & { body: Json }, O>

@@ -8,7 +8,7 @@
     "jsxImportSource": "preact",
 
     "paths": {
-      "chene": ["../src/index.ts"],
+      "chene": ["../src/mod.ts"],
       "chene/node": ["../src/node.ts"],
       "chene/otel": ["../src/otel.ts"]
     }

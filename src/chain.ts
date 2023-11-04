@@ -1,5 +1,5 @@
-import { type Awaitable } from "./index.js"
 import { type AsMiddleware, asMiddleware, type Middleware } from "./middleware.js"
+import { type Awaitable } from "./mod.js"
 
 export type ErrorHandler<I, O> = (error: unknown, input: I) => Awaitable<O>
 

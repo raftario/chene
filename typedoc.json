@@ -2,12 +2,7 @@
   "name": "chêne",
   "readme": "DOCS.md",
   "tsconfig": "src/tsconfig.json",
-  "entryPoints": [
-    "./src/index.ts",
-    "./src/router.ts",
-    "./src/node.ts",
-    "./src/otel.ts"
-  ],
+  "entryPoints": ["./src/mod.ts", "./src/router.ts", "./src/node.ts", "./src/otel.ts"],
   "out": "./dist/docs",
   "excludePrivate": true,
   "excludeInternal": true,

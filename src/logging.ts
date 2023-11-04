@@ -1,5 +1,5 @@
-import { type Context } from "./index.js"
 import { type Middleware } from "./middleware.js"
+import { type Context } from "./mod.js"
 
 /** Logger middleware options */
 export interface LoggerOptions {

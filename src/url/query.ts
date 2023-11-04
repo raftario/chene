@@ -1,5 +1,5 @@
-import { type Context, type z } from "../index.js"
 import { type Middleware } from "../middleware.js"
+import { type Context, type z } from "../mod.js"
 import { fromStringsMap, type ZFromStringsMap } from "../validation/string.js"
 import { QueryValidationError } from "./error.js"
 

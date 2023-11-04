@@ -1,13 +1,13 @@
 /** @module chene/router */
 
 import { Chain, type ErrorHandler } from "./chain.js"
-import { type Awaitable, type Context } from "./index.js"
 import {
   type AsMiddleware,
   asMiddleware,
   type Middleware,
   throwInMiddleware,
 } from "./middleware.js"
+import { type Awaitable, type Context } from "./mod.js"
 import {
   defaultErrorHandler,
   MethodNotAllowedError,

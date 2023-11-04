@@ -12,7 +12,7 @@ import {
   type ServeOptions,
   type TlsServeOptions,
   type V8Server,
-} from "../index.js"
+} from "../mod.js"
 import { status as statusResponse } from "../response.js"
 import { makeHandler, withDefaults } from "./shared.js"
 

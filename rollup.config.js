@@ -8,7 +8,7 @@ import dts from "rollup-plugin-dts"
 import nodeExternals from "rollup-plugin-node-externals"
 
 const ENTRYPOINTS = {
-  index: "src/index.ts",
+  index: "src/mod.ts",
   "jsx-runtime": "src/jsx-runtime.ts",
   router: "src/router.ts",
 }

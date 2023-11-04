@@ -1,8 +1,8 @@
 import * as ct from "content-type"
 import { type z } from "zod"
 
-import { type Context } from "../index.js"
 import { type Middleware } from "../middleware.js"
+import { type Context } from "../mod.js"
 import { fromStringsMap, type ZFromStringsMap } from "../validation/string.js"
 import { BodyTypeError, BodyValidationError } from "./error.js"
 

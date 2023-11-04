@@ -1,5 +1,5 @@
-import { type Context, type Handler, type ServeOptions } from "../index.js"
 import { asMiddleware } from "../middleware.js"
+import { type Context, type Handler, type ServeOptions } from "../mod.js"
 
 export function withDefaults<const O extends ServeOptions>(options: O) {
   return {
