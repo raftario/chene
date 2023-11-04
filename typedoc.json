@@ -1,6 +1,7 @@
 {
   "name": "chêne",
   "readme": "DOCS.md",
+  "tsconfig": "src/tsconfig.json",
   "entryPoints": [
     "./src/index.ts",
     "./src/router.ts",
