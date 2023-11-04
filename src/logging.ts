@@ -17,10 +17,7 @@ export interface LoggerOptions {
  *
  * @example Create an app that logs requests and their latency
  * ```ts
- * import { logger, router } from "chene"
- *
  * const app = router(logger({ latency: true }))
- * // ...
  * ```
  */
 export function logger<I extends Context>(
