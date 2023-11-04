@@ -32,9 +32,12 @@
       "files": ["*.js", "*.jsx"],
       "extends": ["eslint:recommended", "prettier"],
       "plugins": ["simple-import-sort"],
+      "env": {
+        "es2023": true,
+        "node": true
+      },
       "parserOptions": {
-        "sourceType": "module",
-        "ecmaVersion": 2023
+        "sourceType": "module"
       },
       "rules": {
         "simple-import-sort/imports": "warn",

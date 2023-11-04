@@ -77,8 +77,12 @@ export default [
     plugins: [
       dts({ tsconfig: "src/tsconfig.json", respectExternal: true }),
       {
-        name: "cleanup",
-        closeBundle: () => fs.rm("dist/deno/d.ts", { recursive: true }),
+        name: "finish",
+        closeBundle: () =>
+          Promise.all([
+            fs.rm("dist/deno/d.ts", { recursive: true }),
+            fs.cp("README.md", "dist/deno/README.md"),
+          ]),
       },
     ],
     input: Object.fromEntries(
