@@ -32,11 +32,12 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           echo "!dist/deno/" >> .gitignore
+          git add .
           git checkout -b $BRANCH
           git commit -am "build $VERSION"
       - run: npm version $VERSION
       - run: git push origin $BRANCH --follow-tags
 
-      - run: npm run publish --tag $TAG
+      - run: npm publish --tag $TAG
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
