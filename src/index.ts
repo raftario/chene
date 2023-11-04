@@ -49,13 +49,13 @@ export interface ServeOptions {
   /**
    * Port to listen on
    *
-   * @defaultValue random available port
+   * @defaultValue 0
    */
   port?: number
   /**
    * Hostname or IP address or interface to listen on
    *
-   * @defaultValue `"localhost"`
+   * @defaultValue "localhost"
    */
   hostname?: string
   /** Signal usable to shutdown the server */
@@ -63,7 +63,7 @@ export interface ServeOptions {
   /**
    * Called when an unhandled error occurs
    *
-   * @defaultValue {@link console.error}
+   * @defaultValue console.error
    *
    * @param error - Unhandled error
    */
