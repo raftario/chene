@@ -82,6 +82,7 @@ export default [
           Promise.all([
             fs.rm("dist/deno/d.ts", { recursive: true }),
             fs.cp("README.md", "dist/deno/README.md"),
+            fs.cp("LICENSE.md", "dist/deno/LICENSE.md"),
           ]),
       },
     ],
