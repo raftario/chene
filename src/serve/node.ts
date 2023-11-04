@@ -11,18 +11,19 @@ import {
   type Handler,
   type ServeOptions,
   type TlsServeOptions,
+  type V8Server,
 } from "../index.js"
 import { status as statusResponse } from "../response.js"
-import { makeHandler, type V8Server as Server, withDefaults } from "./shared.js"
+import { makeHandler, withDefaults } from "./shared.js"
 
 export function serve(
   handler: Handler,
   options: ServeOptions | TlsServeOptions,
-): Server {
+): V8Server {
   const o = withDefaults(options)
   const h = makeHandler(handler)
 
-  const local = { address: o.hostname, port: o.port }
+  const serverNetwork = { address: o.hostname, port: o.port }
 
   let resolveFinished!: () => void
   const finished = new Promise<void>((resolve) => {
@@ -40,8 +41,8 @@ export function serve(
         request: request as unknown as Request,
         url: new URL(request.url),
         network: {
-          local,
-          peer: {
+          server: serverNetwork,
+          client: {
             address: req.socket.remoteAddress!,
             port: req.socket.remotePort!,
           },
@@ -71,13 +72,13 @@ export function serve(
   o.signal?.addEventListener?.("abort", () => server.close())
 
   server.on("error", o.onError)
-  server.on("listening", () => {
+  server.once("listening", () => {
     const address = server.address() as AddressInfo
 
-    local.address = address.address
-    local.port = address.port
+    serverNetwork.address = address.address
+    serverNetwork.port = address.port
 
-    o.onListen?.(local)
+    o.onListen?.(serverNetwork)
   })
   server.once("close", resolveFinished)
 

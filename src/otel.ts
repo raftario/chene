@@ -63,8 +63,8 @@ export function otel<I extends RouterContext>(
   const spanAttributes: Attributes = {}
 
   attributes[Attribute.HTTP_REQUEST_METHOD] = input.request.method
-  attributes[Attribute.SERVER_ADDRESS] = input.network.local.address
-  attributes[Attribute.SERVER_PORT] = input.network.local.port
+  attributes[Attribute.SERVER_ADDRESS] = input.network.server.address
+  attributes[Attribute.SERVER_PORT] = input.network.server.port
   attributes[Attribute.URL_SCHEME] = input.url.protocol.slice(0, -1)
 
   if (input.route) {
@@ -72,10 +72,10 @@ export function otel<I extends RouterContext>(
     attributes[Attribute.HTTP_ROUTE] = input.route
   }
 
-  spanAttributes[Attribute.CLIENT_ADDRESS] = input.network.peer.address
-  spanAttributes[Attribute.CLIENT_PORT] = input.network.peer.port
-  spanAttributes[Attribute.SERVER_ADDRESS] = input.network.local.address
-  spanAttributes[Attribute.SERVER_PORT] = input.network.local.port
+  spanAttributes[Attribute.CLIENT_ADDRESS] = input.network.client.address
+  spanAttributes[Attribute.CLIENT_PORT] = input.network.client.port
+  spanAttributes[Attribute.SERVER_ADDRESS] = input.network.server.address
+  spanAttributes[Attribute.SERVER_PORT] = input.network.server.port
   spanAttributes[Attribute.URL_PATH] = input.url.pathname
 
   if (input.url.search) {

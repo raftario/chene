@@ -1,7 +1,7 @@
 /** @module chene/router */
 
 import { Chain, type ErrorHandler } from "./chain.js"
-import { type Context } from "./index.js"
+import { type Awaitable, type Context } from "./index.js"
 import {
   type AsMiddleware,
   asMiddleware,
@@ -14,7 +14,6 @@ import {
   NotFoundError,
 } from "./router/error.js"
 import { type Match, Trie } from "./router/trie.js"
-import { type Awaitable } from "./util.js"
 
 export * from "./router/error.js"
 
@@ -58,13 +57,21 @@ type StoredMethodHandler = (
 ) => Middleware<RouterContext, Response, Response, Response>
 type StoredMethods = Record<Method, StoredMethodHandler | undefined>
 
+/**
+ * A router is a middleware that routes requests to other middlewares based on their method and path
+ *
+ * Routes can contain parameters
+ *
+ * This router is based on a prefix tree which means the order in which routes are registered
+ * does not influence the matching process.
+ */
 export class Router<I extends RouterContext = RouterContext, O = Response>
   implements AsMiddleware<Context, Response, Response, Response>
 {
   readonly #routes: Map<string, StoredMethods>
   readonly #chain: Chain<RouterContext, Response, I, O>
 
-  /** @ignore */
+  /** @internal */
   constructor(
     routes: Map<string, StoredMethods>,
     chain: Chain<RouterContext, Response, I, O>,
@@ -267,11 +274,19 @@ export class Router<I extends RouterContext = RouterContext, O = Response>
   }
 }
 
+/**
+ * Creates a new router
+ *
+ * @param middleware - Root middleware which is chained before anything else, including the router's builtin error handler
+ */
 export function router(
-  middleware?: Middleware<RouterContext, Response, RouterContext, Response>,
+  middleware:
+    | Middleware<RouterContext, Response, RouterContext, Response>
+    | AsMiddleware<RouterContext, Response, RouterContext, Response> = (input, next) =>
+    next(input),
 ): Router {
-  const m: Middleware<RouterContext, Response, RouterContext, Response> = middleware
-    ? asMiddleware(middleware)
-    : (input, next) => next(input)
-  return new Router(new Map(), new Chain(m).catch(defaultErrorHandler))
+  return new Router(
+    new Map(),
+    new Chain(asMiddleware(middleware)).catch(defaultErrorHandler),
+  )
 }

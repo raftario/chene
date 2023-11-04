@@ -1,5 +1,3 @@
-export type Awaitable<T> = T | Promise<T>
-
 export function merge<Into, From>(into: Into, from: From): Into & From {
   if (!isSimpleObject(into) || !isSimpleObject(from)) {
     return from as Into & From
