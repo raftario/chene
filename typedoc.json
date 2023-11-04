@@ -1,4 +1,6 @@
 {
+  "name": "chêne",
+  "readme": "DOCS.md",
   "entryPoints": [
     "./src/index.ts",
     "./src/router.ts",
