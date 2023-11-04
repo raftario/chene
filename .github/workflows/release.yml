@@ -11,6 +11,10 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.event.inputs.version }}
+      TAG: ${{ github.event.inputs.tag }}
+      BRANCH: v${{ github.event.inputs.version }}-${{ github.event.inputs.tag }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,9 +30,10 @@ jobs:
           git config --global user.name "github-actions[bot]"
           echo "!dist/deno/" >> .gitignore
           git add .
-          git checkout -b v${{ github.event.inputs.version }}-${{ github.event.inputs.tag }}
+          git checkout -b $BRANCH
+      - run: npm version $VERSION
+      - run: git push origin $BRANCH --follow-tags
 
-      - run: npm version ${{ github.event.inputs.version}}
-      - run: npm run publish --tag ${{ github.event.inputs.tag }}
+      - run: npm run publish --tag $TAG
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
