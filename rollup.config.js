@@ -1,7 +1,10 @@
+import * as fs from "node:fs/promises"
+
 import commonjs from "@rollup/plugin-commonjs"
 import json from "@rollup/plugin-json"
 import nodeResolve from "@rollup/plugin-node-resolve"
 import typescript from "@rollup/plugin-typescript"
+import dts from "rollup-plugin-dts"
 import nodeExternals from "rollup-plugin-node-externals"
 
 const ENTRYPOINTS = {
@@ -52,12 +55,38 @@ export default [
         compilerOptions: {
           module: "Node16",
           declaration: true,
-          declarationDir: "dist/deno",
+          declarationDir: "dist/deno/d.ts",
         },
       }),
       json({ preferConst: true }),
     ],
     input: { ...ENTRYPOINTS },
+    output: [
+      {
+        dir: "dist/deno",
+        format: "es",
+        banner: (chunk) => {
+          if (chunk.isEntry) {
+            return `/// <reference types="./${chunk.name}.d.ts" />`
+          }
+        },
+      },
+    ],
+  },
+  {
+    plugins: [
+      dts({ tsconfig: "src/tsconfig.json", respectExternal: true }),
+      {
+        name: "cleanup",
+        closeBundle: () => fs.rm("dist/deno/d.ts", { recursive: true }),
+      },
+    ],
+    input: Object.fromEntries(
+      Object.entries({ ...ENTRYPOINTS }).map(([k, v]) => [
+        k,
+        v.replace(".ts", ".d.ts").replace("src/", "dist/deno/d.ts/"),
+      ]),
+    ),
     output: [
       {
         dir: "dist/deno",
