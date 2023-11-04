@@ -6,17 +6,19 @@ import { TLSSocket } from "node:tls"
 
 import type * as undici from "undici-types"
 
-import { type Context, type Handler } from "../index.js"
-import { status as statusResponse } from "../response.js"
 import {
-  makeHandler,
-  type Options,
-  type TlsOptions,
-  type V8Server as Server,
-  withDefaults,
-} from "./shared.js"
+  type Context,
+  type Handler,
+  type ServeOptions,
+  type TlsServeOptions,
+} from "../index.js"
+import { status as statusResponse } from "../response.js"
+import { makeHandler, type V8Server as Server, withDefaults } from "./shared.js"
 
-export function serve(handler: Handler, options: Options | TlsOptions): Server {
+export function serve(
+  handler: Handler,
+  options: ServeOptions | TlsServeOptions,
+): Server {
   const o = withDefaults(options)
   const h = makeHandler(handler)
 
@@ -34,7 +36,7 @@ export function serve(handler: Handler, options: Options | TlsOptions): Server {
     let response: Response
     try {
       const request = convertRequest(req)
-      const ctx: Context = {
+      const input: Context = {
         request: request as unknown as Request,
         url: new URL(request.url),
         network: {
@@ -46,7 +48,7 @@ export function serve(handler: Handler, options: Options | TlsOptions): Server {
         },
       }
 
-      response = await h(ctx)
+      response = await h(input)
     } catch (err) {
       o.onError(err)
       response = statusResponse(500)

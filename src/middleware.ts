@@ -1,15 +1,28 @@
-export type Middleware<I, O, Ctx> = (
+/**
+ * A middleware is a function that encapsulates another function and transforms it
+ *
+ * They can both transform the input and output of the function,
+ * and add additional functionality around it.
+ *
+ * @typeParam I - Input type of the middleware
+ * @typeParam O - (Tranformed) Output type of the middleware
+ * @typeParam II - (Tranformed) Input type of the encapsulated function
+ * @typeParam OO - Output type of the encapsulated function
+ */
+export type Middleware<I, O, II, OO> = (
   input: I,
-  next: (ctx: Ctx) => Promise<O>,
+  next: (input: II) => Promise<OO>,
 ) => Promise<O>
 
-export interface AsMiddleware<I, O, Ctx> {
-  middleware(): Middleware<I, O, Ctx>
+/** Type convertible to a {@link Middleware} */
+export interface AsMiddleware<I, O, II, OO> {
+  middleware(): Middleware<I, O, II, OO>
 }
 
-export function asMiddleware<I, O, Ctx>(
-  middleware: Middleware<I, O, Ctx> | AsMiddleware<I, O, Ctx>,
-): Middleware<I, O, Ctx> {
+/** Flattens {@link AsMiddleware} to {@link Middleware} */
+export function asMiddleware<I, O, II, OO>(
+  middleware: Middleware<I, O, II, OO> | AsMiddleware<I, O, II, OO>,
+): Middleware<I, O, II, OO> {
   if ("middleware" in middleware) {
     return middleware.middleware()
   } else {
@@ -17,10 +30,11 @@ export function asMiddleware<I, O, Ctx>(
   }
 }
 
-export function throwInMiddleware<I, O>(
-  middleware: Middleware<I, O, unknown>,
+/** Throws an error inside a middleware so it can potentially catch it */
+export function throwInMiddleware<I, O, II, OO>(
+  middleware: Middleware<I, O, II, OO>,
   input: I,
-  err: unknown,
+  error: unknown,
 ): Promise<O> {
-  return middleware(input, () => Promise.reject(err))
+  return middleware(input, () => Promise.reject(error))
 }

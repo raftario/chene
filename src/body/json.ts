@@ -1,34 +1,33 @@
-import { type Context } from "../index.js"
+import { type z, type ZodType } from "zod"
+
+import { type Context, type Json } from "../index.js"
 import { type Middleware } from "../middleware.js"
-import { type Z, type z } from "../validation.js"
 import { BodyTypeError, BodyValidationError } from "./error.js"
 
-export function json<Ctx extends Context>(): Middleware<
-  Ctx,
-  Response,
-  Ctx & { body: unknown }
->
-export function json<Ctx extends Context, const T extends Z>(
+export function json<I extends Context, O>(): Middleware<I, O, I & { body: Json }, O>
+export function json<const T extends ZodType, I extends Context, O>(
   schema: T,
-): Middleware<Ctx, Response, Ctx & { body: z.infer<T> }>
-export function json<Ctx extends Context, const K extends string>(
+): Middleware<I, O, I & { body: z.infer<T> }, O>
+export function json<const K extends string, I extends Context, O>(
   key: K,
-): Middleware<Ctx, Response, Ctx & { [body in K]: unknown }>
-export function json<Ctx extends Context, const K extends string, const T extends Z>(
-  key: K,
-  schema: T,
-): Middleware<Ctx, Response, Ctx & { [body in K]: z.infer<T> }>
+): Middleware<I, O, I & { [body in K]: Json }, O>
+export function json<
+  const K extends string,
+  const T extends ZodType,
+  I extends Context,
+  O,
+>(key: K, schema: T): Middleware<I, O, I & { [body in K]: z.infer<T> }, O>
 
-export function json(
+export function json<O>(
   ...args: unknown[]
-): Middleware<Context, Response, Record<string, unknown>> {
+): Middleware<Context, O, Record<string, unknown>, O> {
   const key = typeof args[0] === "string" ? (args.shift() as string) : "body"
-  const schema = args[0] as Z | undefined
+  const schema = args[0] as ZodType | undefined
 
-  return async (ctx, next) => {
+  return async (input, next) => {
     let body: unknown
     try {
-      body = await ctx.request.json()
+      body = await input.request.json()
     } catch (err) {
       const cause = err instanceof Error ? err : undefined
       return Promise.reject(new BodyTypeError({ expected: "application/json", cause }))
@@ -42,6 +41,6 @@ export function json(
       body = parsed.data
     }
 
-    return next({ ...ctx, [key]: body })
+    return next({ ...input, [key]: body })
   }
 }

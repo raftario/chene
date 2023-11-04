@@ -10,15 +10,8 @@
   "type": "module",
   "exports": {
     ".": "./dist/node/index.js",
-    "./body": "./dist/node/body.js",
-    "./chain": "./dist/node/chain.js",
     "./jsx-runtime": "./dist/node/jsx-runtime.js",
-    "./logging": "./dist/node/logging.js",
-    "./middleware": "./dist/node/middleware.js",
-    "./response": "./dist/node/response.js",
     "./router": "./dist/node/router.js",
-    "./url": "./dist/node/url.js",
-    "./validation": "./dist/node/validation.js",
     "./node": "./dist/node/index.js",
     "./otel": "./dist/node/otel.js"
   },
@@ -30,6 +23,7 @@
   ],
   "scripts": {
     "build": "rollup -c",
+    "docs": "typedoc",
     "lint": "prettier --check . && eslint --ignore-path .gitignore .",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
   },
@@ -81,6 +75,8 @@
     "rollup-plugin-node-externals": "^6.1.0",
     "ts-jest": "^29.1.0",
     "tslib": "^2.6.0",
+    "typedoc": "^0.25.3",
+    "typedoc-plugin-mdn-links": "^3.1.0",
     "typescript": "^5.2.0"
   }
 }

@@ -34,7 +34,7 @@ function fromString(type: ZFromString): z.ZodType {
     type instanceof z.ZodLiteral ||
     type instanceof z.ZodEnum
   ) {
-    return z.coerce.string().pipe(type)
+    return type
   } else if (type instanceof z.ZodNumber) {
     return z.coerce.number().pipe(type)
   } else if (type instanceof z.ZodBoolean) {

@@ -1,4 +1,4 @@
-import { type ZError } from "../validation.js"
+import { type ZodError } from "zod"
 
 export class UrlError extends Error {
   constructor(message?: string, options?: ErrorOptions) {
@@ -13,11 +13,11 @@ export class UrlError extends Error {
 
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 export class QueryValidationError extends Error {
-  constructor(options: { cause: ZError }) {
+  constructor(options: { cause: ZodError }) {
     super("Invalid query string", options)
   }
 }
 export interface QueryValidationError {
-  cause: ZError
+  cause: ZodError
 }
 /* eslint-enable @typescript-eslint/no-unsafe-declaration-merging */

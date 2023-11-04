@@ -1,4 +1,8 @@
+/** @module chene */
+
 import { type AsMiddleware, type Middleware } from "./middleware.js"
+
+export type Json = null | boolean | number | string | Json[] | { [key: string]: Json }
 
 export interface Context {
   request: Request
@@ -16,14 +20,27 @@ export interface Context {
 }
 
 export type Handler =
-  | Middleware<Context, Response, Response>
-  | AsMiddleware<Context, Response, Response>
+  | Middleware<Context, Response, Response, Response>
+  | AsMiddleware<Context, Response, Response, Response>
+
+export interface ServeOptions {
+  port?: number
+  hostname?: string
+  signal?: AbortSignal
+  onError?: (err: unknown) => void
+  onListen?: (params: Context["network"]["local"]) => void
+}
+export interface TlsServeOptions extends ServeOptions {
+  cert: string
+  key: string
+}
 
 export * as body from "./body.js"
-export { Chain } from "./chain.js"
-export { type Node } from "./jsx-runtime.js"
-export { logger } from "./logging.js"
-export { type AsMiddleware, type Middleware } from "./middleware.js"
+export * from "./chain.js"
+export * from "./logging.js"
+export * from "./middleware.js"
 export * as response from "./response.js"
 export { type Router, router } from "./router.js"
-export { z } from "./validation.js"
+export * as url from "./url.js"
+export { type VNode as Node } from "preact"
+export { z } from "zod"

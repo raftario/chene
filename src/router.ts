@@ -1,3 +1,5 @@
+/** @module chene/router */
+
 import { Chain, type ErrorHandler } from "./chain.js"
 import { type Context } from "./index.js"
 import {
@@ -18,62 +20,67 @@ export * from "./router/error.js"
 
 /** Base router context */
 export interface RouterContext extends Context {
+  /** Currently matched route */
   route?: string
 }
 
-/** Route handler input */
-type Input<Route extends string, Ctx extends RouterContext> = Ctx & {
+/**
+ * Input type combining the route input with the route parameters
+ *
+ * @typeParam Route - String literal type representing the route
+ * @typeParam I - Route input
+ */
+export type Input<Route extends string, I extends RouterContext> = I & {
   path: Match<Route>
 }
 
-/** Transform to apply to the route handler context */
-type Transform<Route extends string, Ctx extends RouterContext, Nxt> = (
-  chain: Chain<Ctx, Response, Input<Route, Ctx>>,
-) => Chain<Ctx, Response, Nxt>
-/** Route handler */
-type Handler<Ctx> = (ctx: Ctx) => Awaitable<Response>
+/**
+ * Transform to apply to a route input and output before passing them to the handler
+ *
+ * @typeParam Route - String literal type representing the route
+ * @typeParam I - Route input
+ * @typeParam O - Route output
+ * @typeParam II - Transformed route input, will be passed to the handler
+ * @typeParam OO - Transformed route output, will be returned by the handler
+ */
+export type Transform<Route extends string, I extends RouterContext, O, II, OO> = (
+  chain: Chain<RouterContext, Response, Input<Route, I>, O>,
+) => Chain<RouterContext, Response, II, OO>
 
+/** Route handler */
+export type Handler<I, O> = (input: I) => Awaitable<O>
+
+/** HTTP method */
 type Method = "GET" | "POST" | "PATCH" | "PUT" | "DELETE"
 
-interface StoredMethodHandlers {
-  routerChain: Chain<RouterContext, Response, RouterContext>
-  chainTransform: (
-    chain: Chain<RouterContext, Response, Input<string, RouterContext>>,
-  ) => Chain<RouterContext, Response, Response>
-}
-type StoredMethods = Record<Method, StoredMethodHandlers | undefined>
+type StoredMethodHandler = (
+  path: Match<string>,
+) => Middleware<RouterContext, Response, Response, Response>
+type StoredMethods = Record<Method, StoredMethodHandler | undefined>
 
-export class Router<Ctx extends RouterContext = RouterContext>
-  implements AsMiddleware<Context, Response, Response>
+export class Router<I extends RouterContext = RouterContext, O = Response>
+  implements AsMiddleware<Context, Response, Response, Response>
 {
   readonly #routes: Map<string, StoredMethods>
-  readonly #chain: Chain<RouterContext, Response, Ctx>
+  readonly #chain: Chain<RouterContext, Response, I, O>
 
+  /** @ignore */
   constructor(
     routes: Map<string, StoredMethods>,
-    chain: Chain<RouterContext, Response, Ctx>,
+    chain: Chain<RouterContext, Response, I, O>,
   ) {
     this.#routes = routes
     this.#chain = chain
   }
 
-  #method(
+  #method<II, OO>(
     method: Method,
     route: string,
-    transformOrHandler: unknown,
-    maybeHandler?: unknown,
+    ...args:
+      | [transform: Transform<string, I, O, II, OO>, handler: Handler<II, OO>]
+      | [handler: Handler<Input<string, I>, O>]
   ): this {
     if (route.at(-1) === "/") route = route.slice(0, -1)
-
-    const [transform, handler]: [
-      Transform<string, RouterContext, unknown>,
-      Handler<unknown>,
-    ] = maybeHandler
-      ? [
-          transformOrHandler as Transform<string, RouterContext, unknown>,
-          maybeHandler as Handler<unknown>,
-        ]
-      : [(chain) => chain, transformOrHandler as Handler<unknown>]
 
     const methods = this.#routes.get(route) ?? {
       GET: undefined,
@@ -82,10 +89,30 @@ export class Router<Ctx extends RouterContext = RouterContext>
       PATCH: undefined,
       DELETE: undefined,
     }
-    methods[method] = {
-      routerChain: this.#chain,
-      chainTransform: (chain) =>
-        transform(chain).use(async (ctx, next) => next(await handler(ctx))),
+
+    const chain = this.#chain
+    if (args.length === 2) {
+      const [transform, handler] = args
+
+      methods[method] = (path) => async (routerInput, next) =>
+        next(
+          await transform(
+            chain.use((routeInput, next) => next({ ...routeInput, path })),
+          ).middleware()(
+            routerInput,
+            async (transformedInput) => await handler(transformedInput),
+          ),
+        )
+    } else {
+      const [handler] = args
+
+      methods[method] = (path) => async (routerInput, next) =>
+        next(
+          await chain.middleware()(
+            routerInput,
+            async (routeInput) => await handler({ ...routeInput, path }),
+          ),
+        )
     }
 
     this.#routes.set(route, methods)
@@ -93,20 +120,20 @@ export class Router<Ctx extends RouterContext = RouterContext>
     return this
   }
 
-  middleware(): Middleware<Context, Response, Response> {
-    const trie = new Trie<Middleware<Context, Response, Response>>()
+  middleware(): Middleware<Context, Response, Response, Response> {
+    const trie = new Trie<Middleware<Context, Response, Response, Response>>()
     for (const [route, handlers] of this.#routes) {
-      trie.insert(route, (path) => (ctx, next) => {
-        const method = ctx.request.method as Method
+      trie.insert(route, (path) => (input, next) => {
+        const method = input.request.method as Method
         const stored = handlers[method]
 
         if (!stored) {
           return throwInMiddleware(
             this.#chain.middleware(),
-            { ...ctx, route },
+            { ...input, route },
             new MethodNotAllowedError({
-              method: ctx.request.method,
-              path: ctx.url.pathname,
+              method: input.request.method,
+              path: input.url.pathname,
               route,
               allowed: Object.entries(handlers)
                 .filter(([, handler]) => handler)
@@ -115,116 +142,136 @@ export class Router<Ctx extends RouterContext = RouterContext>
           )
         }
 
-        const { routerChain, chainTransform } = stored
-        return chainTransform(
-          routerChain.use((ctx, next) => next({ ...ctx, path })),
-        ).middleware()({ ...ctx, route }, next)
+        return stored(path)(input, next)
       })
     }
 
-    return (ctx, next) => {
-      const middleware = trie.match(ctx.url.pathname)
+    return (input, next) => {
+      const middleware = trie.match(input.url.pathname)
 
       if (!middleware) {
         return throwInMiddleware(
           this.#chain.middleware(),
-          ctx,
-          new NotFoundError({ method: ctx.request.method, path: ctx.url.pathname }),
+          input,
+          new NotFoundError({ method: input.request.method, path: input.url.pathname }),
         )
       }
 
-      return middleware(ctx, next)
+      return middleware(input, next)
     }
   }
 
-  use<const Nxt extends RouterContext>(
-    middleware: Middleware<Ctx, Response, Nxt> | AsMiddleware<Ctx, Response, Nxt>,
-  ): Router<Nxt> {
+  use<II extends RouterContext, OO>(
+    middleware: Middleware<I, O, II, OO>,
+  ): Router<II, OO> {
     return new Router(this.#routes, this.#chain.use(middleware))
   }
 
-  catch(errorHandler: ErrorHandler<Ctx, Response>): Router<Ctx> {
+  catch(errorHandler: ErrorHandler<I, O>): Router<I, O> {
     return new Router(this.#routes, this.#chain.catch(errorHandler))
   }
 
+  get<const Route extends `/${string}`, II, OO>(
+    route: Route,
+    transform: Transform<Route, I, O, II, OO>,
+    handler: Handler<II, OO>,
+  ): this
   get<const Route extends `/${string}`>(
     route: Route,
-    handler: Handler<Input<Route, Ctx>>,
-  ): this
-  get<const Route extends `/${string}`, Nxt>(
-    route: Route,
-    transform: Transform<Route, Ctx, Nxt>,
-    handler: Handler<Nxt>,
+    handler: Handler<Input<Route, I>, O>,
   ): this
 
-  get(route: string, transformOrHandler: unknown, maybeHandler?: unknown): this {
-    return this.#method("GET", route, transformOrHandler, maybeHandler)
+  get<II, OO>(
+    route: string,
+    ...args:
+      | [transform: Transform<string, I, O, II, OO>, handler: Handler<II, OO>]
+      | [handler: Handler<Input<string, I>, O>]
+  ): this {
+    return this.#method("GET", route, ...args)
   }
 
+  post<const Route extends `/${string}`, II, OO>(
+    route: Route,
+    transform: Transform<Route, I, O, II, OO>,
+    handler: Handler<II, OO>,
+  ): this
   post<const Route extends `/${string}`>(
     route: Route,
-    handler: Handler<Input<Route, Ctx>>,
-  ): this
-  post<const Route extends `/${string}`, Nxt>(
-    route: Route,
-    transform: Transform<Route, Ctx, Nxt>,
-    handler: Handler<Nxt>,
+    handler: Handler<Input<Route, I>, O>,
   ): this
 
-  post(route: string, transformOrHandler: unknown, maybeHandler?: unknown): this {
-    return this.#method("POST", route, transformOrHandler, maybeHandler)
+  post<II, OO>(
+    route: string,
+    ...args:
+      | [transform: Transform<string, I, O, II, OO>, handler: Handler<II, OO>]
+      | [handler: Handler<Input<string, I>, O>]
+  ): this {
+    return this.#method("POST", route, ...args)
   }
 
+  patch<const Route extends `/${string}`, II, OO>(
+    route: Route,
+    transform: Transform<Route, I, O, II, OO>,
+    handler: Handler<II, OO>,
+  ): this
   patch<const Route extends `/${string}`>(
     route: Route,
-    handler: Handler<Input<Route, Ctx>>,
-  ): this
-  patch<const Route extends `/${string}`, Nxt>(
-    route: Route,
-    transform: Transform<Route, Ctx, Nxt>,
-    handler: Handler<Nxt>,
+    handler: Handler<Input<Route, I>, O>,
   ): this
 
-  patch(route: string, transformOrHandler: unknown, maybeHandler?: unknown): this {
-    return this.#method("PATCH", route, transformOrHandler, maybeHandler)
+  patch<II, OO>(
+    route: string,
+    ...args:
+      | [transform: Transform<string, I, O, II, OO>, handler: Handler<II, OO>]
+      | [handler: Handler<Input<string, I>, O>]
+  ): this {
+    return this.#method("PATCH", route, ...args)
   }
 
+  put<const Route extends `/${string}`, II, OO>(
+    route: Route,
+    transform: Transform<Route, I, O, II, OO>,
+    handler: Handler<II, OO>,
+  ): this
   put<const Route extends `/${string}`>(
     route: Route,
-    handler: Handler<Input<Route, Ctx>>,
-  ): this
-  put<const Route extends `/${string}`, Nxt>(
-    route: Route,
-    transform: Transform<Route, Ctx, Nxt>,
-    handler: Handler<Nxt>,
+    handler: Handler<Input<Route, I>, O>,
   ): this
 
-  put(route: string, transformOrHandler: unknown, maybeHandler?: unknown): this {
-    return this.#method("PUT", route, transformOrHandler, maybeHandler)
+  put<II, OO>(
+    route: string,
+    ...args:
+      | [transform: Transform<string, I, O, II, OO>, handler: Handler<II, OO>]
+      | [handler: Handler<Input<string, I>, O>]
+  ): this {
+    return this.#method("PUT", route, ...args)
   }
 
+  delete<const Route extends `/${string}`, II, OO>(
+    route: Route,
+    transform: Transform<Route, I, O, II, OO>,
+    handler: Handler<II, OO>,
+  ): this
   delete<const Route extends `/${string}`>(
     route: Route,
-    handler: Handler<Input<Route, Ctx>>,
-  ): this
-  delete<const Route extends `/${string}`, Nxt>(
-    route: Route,
-    transform: Transform<Route, Ctx, Nxt>,
-    handler: Handler<Nxt>,
+    handler: Handler<Input<Route, I>, O>,
   ): this
 
-  delete(route: string, transformOrHandler: unknown, maybeHandler?: unknown): this {
-    return this.#method("DELETE", route, transformOrHandler, maybeHandler)
+  delete<II, OO>(
+    route: string,
+    ...args:
+      | [transform: Transform<string, I, O, II, OO>, handler: Handler<II, OO>]
+      | [handler: Handler<Input<string, I>, O>]
+  ): this {
+    return this.#method("DELETE", route, ...args)
   }
 }
 
 export function router(
-  middleware?:
-    | Middleware<RouterContext, Response, RouterContext>
-    | AsMiddleware<RouterContext, Response, RouterContext>,
+  middleware?: Middleware<RouterContext, Response, RouterContext, Response>,
 ): Router {
-  const m: Middleware<RouterContext, Response, RouterContext> = middleware
+  const m: Middleware<RouterContext, Response, RouterContext, Response> = middleware
     ? asMiddleware(middleware)
-    : (ctx, next) => next(ctx)
+    : (input, next) => next(input)
   return new Router(new Map(), new Chain(m).catch(defaultErrorHandler))
 }

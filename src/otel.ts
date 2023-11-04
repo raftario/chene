@@ -1,7 +1,10 @@
+/** @module chene/otel */
+
 import {
   type Attributes,
   type Histogram,
   metrics,
+  type Span,
   SpanKind,
   SpanStatusCode,
   trace,
@@ -11,7 +14,6 @@ import {
 } from "@opentelemetry/api"
 
 import { name, version } from "../package.json"
-import { type Middleware } from "./middleware.js"
 import { type RouterContext } from "./router.js"
 
 const enum Attribute {
@@ -49,41 +51,44 @@ const meters = () => {
   })
 }
 
-export const otel: Middleware<RouterContext, Response, RouterContext> = (ctx, next) => {
+export function otel<I extends RouterContext>(
+  input: I,
+  next: (input: I & { span: Span }) => Promise<Response>,
+): Promise<Response> {
   const start = performance.now()
 
-  let name = ctx.request.method
+  let name = input.request.method
 
   const attributes: Attributes = {}
   const spanAttributes: Attributes = {}
 
-  attributes[Attribute.HTTP_REQUEST_METHOD] = ctx.request.method
-  attributes[Attribute.SERVER_ADDRESS] = ctx.network.local.address
-  attributes[Attribute.SERVER_PORT] = ctx.network.local.port
-  attributes[Attribute.URL_SCHEME] = ctx.url.protocol.slice(0, -1)
+  attributes[Attribute.HTTP_REQUEST_METHOD] = input.request.method
+  attributes[Attribute.SERVER_ADDRESS] = input.network.local.address
+  attributes[Attribute.SERVER_PORT] = input.network.local.port
+  attributes[Attribute.URL_SCHEME] = input.url.protocol.slice(0, -1)
 
-  if (ctx.route) {
-    name += ` ${ctx.route}`
-    attributes[Attribute.HTTP_ROUTE] = ctx.route
+  if (input.route) {
+    name += ` ${input.route}`
+    attributes[Attribute.HTTP_ROUTE] = input.route
   }
 
-  spanAttributes[Attribute.CLIENT_ADDRESS] = ctx.network.peer.address
-  spanAttributes[Attribute.CLIENT_PORT] = ctx.network.peer.port
-  spanAttributes[Attribute.SERVER_ADDRESS] = ctx.network.local.address
-  spanAttributes[Attribute.SERVER_PORT] = ctx.network.local.port
-  spanAttributes[Attribute.URL_PATH] = ctx.url.pathname
+  spanAttributes[Attribute.CLIENT_ADDRESS] = input.network.peer.address
+  spanAttributes[Attribute.CLIENT_PORT] = input.network.peer.port
+  spanAttributes[Attribute.SERVER_ADDRESS] = input.network.local.address
+  spanAttributes[Attribute.SERVER_PORT] = input.network.local.port
+  spanAttributes[Attribute.URL_PATH] = input.url.pathname
 
-  if (ctx.url.search) {
-    spanAttributes[Attribute.URL_QUERY] = ctx.url.search
+  if (input.url.search) {
+    spanAttributes[Attribute.URL_QUERY] = input.url.search
   }
 
-  const contentLength = ctx.request.headers.get("content-length") ?? undefined
+  const contentLength = input.request.headers.get("content-length") ?? undefined
   const bodySize = contentLength && Number(contentLength)
   if (Number.isSafeInteger(bodySize)) {
     spanAttributes[Attribute.HTTP_REQUEST_BODY_SIZE] = bodySize
   }
 
-  const userAgent = ctx.request.headers.get("user-agent")
+  const userAgent = input.request.headers.get("user-agent")
   if (userAgent) {
     spanAttributes[Attribute.USER_AGENT_ORIGINAL] = userAgent
   }
@@ -101,7 +106,7 @@ export const otel: Middleware<RouterContext, Response, RouterContext> = (ctx, ne
       activeRequests.add(1, attributes)
 
       try {
-        const response = await next(ctx)
+        const response = await next({ ...input, span })
 
         span.setAttribute(Attribute.HTTP_RESPONSE_STATUS_CODE, response.status)
         attributes[Attribute.HTTP_RESPONSE_STATUS_CODE] = response.status

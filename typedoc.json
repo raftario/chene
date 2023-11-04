@@ -1,0 +1,14 @@
+{
+  "entryPoints": [
+    "./src/index.ts",
+    "./src/router.ts",
+    "./src/node.ts",
+    "./src/otel.ts"
+  ],
+  "out": "./dist/docs",
+  "excludePrivate": true,
+  "visibilityFilters": {
+    "external": true
+  },
+  "plugin": ["typedoc-plugin-mdn-links"]
+}

@@ -1,9 +1,10 @@
+import { type ZodError } from "zod"
+
 import { BodyTypeError, BodyValidationError } from "../body/error.js"
 import * as response from "../response.js"
 import { QueryValidationError } from "../url/error.js"
-import { type ZError } from "../validation.js"
 
-export class RouterError extends Error {
+export abstract class RouterError extends Error {
   readonly method: string
   readonly path: string
 
@@ -46,7 +47,7 @@ export class MethodNotAllowedError extends RouterError {
 }
 
 type FormattedError = { [key: string]: FormattedError } & { _errors: string[] }
-function formatValidationError(err: ZError) {
+function formatValidationError(err: ZodError) {
   const format = (err: FormattedError, depth: number) => {
     const indent = " ".repeat(depth * 2)
     const errors = err._errors.map((s) => `${indent}- ${s}`)
@@ -68,21 +69,21 @@ function formatValidationError(err: ZError) {
   return format(err.format() as FormattedError, 0)
 }
 
-export function defaultErrorHandler(err: unknown): Response {
-  if (err instanceof NotFoundError) {
+export function defaultErrorHandler(error: unknown): Response {
+  if (error instanceof NotFoundError) {
     return response.status(404)
-  } else if (err instanceof MethodNotAllowedError) {
-    return response.status(405, { headers: { allow: err.allowed.join(", ") } })
-  } else if (err instanceof BodyTypeError) {
+  } else if (error instanceof MethodNotAllowedError) {
+    return response.status(405, { headers: { allow: error.allowed.join(", ") } })
+  } else if (error instanceof BodyTypeError) {
     return response.status(415)
   } else if (
-    err instanceof BodyValidationError ||
-    err instanceof QueryValidationError
+    error instanceof BodyValidationError ||
+    error instanceof QueryValidationError
   ) {
-    const errors = formatValidationError(err.cause)
-    const body = [err.message, "", ...errors].join("\n")
+    const errors = formatValidationError(error.cause)
+    const body = [error.message, "", ...errors].join("\n")
     return response.text(body, { status: 400 })
   } else {
-    throw err
+    throw error
   }
 }

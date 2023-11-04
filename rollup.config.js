@@ -6,15 +6,8 @@ import nodeExternals from "rollup-plugin-node-externals"
 
 const ENTRYPOINTS = {
   index: "src/index.ts",
-  body: "src/body.ts",
-  chain: "src/chain.ts",
   "jsx-runtime": "src/jsx-runtime.ts",
-  logging: "src/logging.ts",
-  middleware: "src/middleware.ts",
-  response: "src/response.ts",
   router: "src/router.ts",
-  url: "src/url.ts",
-  validation: "src/validation.ts",
 }
 const NODE_ENTRYPOINTS = {
   node: "src/node.ts",
