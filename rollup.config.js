@@ -28,6 +28,7 @@ export default [
         tsconfig: "src/tsconfig.json",
         compilerOptions: {
           module: "Node16",
+          moduleResolution: "Node16",
           declaration: true,
           declarationDir: "dist/node",
         },
@@ -35,13 +36,11 @@ export default [
       json({ preferConst: true }),
     ],
     input: { ...ENTRYPOINTS, ...NODE_ENTRYPOINTS },
-    output: [
-      {
-        dir: "dist/node",
-        format: "es",
-        sourcemap: true,
-      },
-    ],
+    output: {
+      dir: "dist/node",
+      format: "es",
+      sourcemap: true,
+    },
   },
   // deno
   {
@@ -53,7 +52,8 @@ export default [
         cacheDir: "node_modules/.rollup",
         tsconfig: "src/tsconfig.json",
         compilerOptions: {
-          module: "Node16",
+          module: "ES2022",
+          moduleResolution: "Bundler",
           declaration: true,
           declarationDir: "dist/deno/d.ts",
         },
@@ -61,23 +61,41 @@ export default [
       json({ preferConst: true }),
     ],
     input: { ...ENTRYPOINTS },
-    output: [
-      {
-        dir: "dist/deno",
-        format: "es",
-        banner: (chunk) => {
-          if (chunk.isEntry) {
-            return `/// <reference types="./${chunk.name}.d.ts" />`
-          }
-        },
+    output: {
+      dir: "dist/deno",
+      format: "es",
+      banner: (chunk) => {
+        if (chunk.isEntry) {
+          return `/// <reference types="./${chunk.name}.d.ts" />`
+        }
       },
-    ],
+    },
   },
   {
     plugins: [
-      dts({ tsconfig: "src/tsconfig.json", respectExternal: true }),
+      dts({
+        respectExternal: true,
+        tsconfig: "src/tsconfig.json",
+        compilerOptions: {
+          module: "ES2022",
+        },
+      }),
+
       {
-        name: "finish",
+        name: "deno-shit",
+
+        generateBundle(_options, bundle) {
+          for (const [name, chunk] of Object.entries(bundle)) {
+            if (chunk.type !== "chunk" || chunk.isEntry) continue
+
+            this.emitFile({
+              type: "prebuilt-chunk",
+              fileName: name.replace(".d.ts", ".js"),
+              code: `/// <reference types="./${name}" />`,
+            })
+          }
+        },
+
         closeBundle: () =>
           Promise.all([
             fs.rm("dist/deno/d.ts", { recursive: true }),
@@ -86,17 +104,16 @@ export default [
           ]),
       },
     ],
+
     input: Object.fromEntries(
       Object.entries({ ...ENTRYPOINTS }).map(([k, v]) => [
         k,
         v.replace(".ts", ".d.ts").replace("src/", "dist/deno/d.ts/"),
       ]),
     ),
-    output: [
-      {
-        dir: "dist/deno",
-        format: "es",
-      },
-    ],
+    output: {
+      dir: "dist/deno",
+      format: "es",
+    },
   },
 ]
