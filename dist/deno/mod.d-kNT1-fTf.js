@@ -1,0 +1,1 @@
+/// <reference types="./mod.d-kNT1-fTf.d.ts" />
