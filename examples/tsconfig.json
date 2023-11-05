@@ -1,5 +1,6 @@
 {
   "extends": [".."],
+  "include": ["."],
   "references": [{ "path": "../src" }],
 
   "compilerOptions": {
