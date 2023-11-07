@@ -8,18 +8,65 @@ import { BodyTypeError, BodyValidationError } from "./error.js"
 
 const CONTENT_TYPE = "application/x-www-form-urlencoded"
 
+/**
+ * Form data middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a `body` property
+ * containing the parsed form data.
+ *
+ * The returned middleware will only parse form data encoded as `application/x-www-form-urlencoded`.
+ */
 export function form<I extends Context, O>(): Middleware<
   I,
   O,
   I & { body: FormData },
   O
 >
+/**
+ * Form data middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a `body` property
+ * containing the form data parsed and validated with the given schema.
+ *
+ * The returned middleware will only parse form data encoded as `application/x-www-form-urlencoded`.
+ *
+ * @param schema - Schema to validate the form data with
+ */
 export function form<const T extends ZFromStringsMap, I extends Context, O>(
   schema: T,
 ): Middleware<I, O, I & { body: z.infer<T> }, O>
+/**
+ * Form data middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a property with the given key
+ * containing the parsed form data.
+ *
+ * The returned middleware will only parse form data encoded as `application/x-www-form-urlencoded`.
+ *
+ * @param key - Key to use for the form data property
+ */
 export function form<const K extends string, I extends Context, O>(
   key: K,
 ): Middleware<I, O, I & { [body in K]: FormData }, O>
+/**
+ * Form data middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a property with the given key
+ * containing the form data parsed and validated with the given schema.
+ *
+ * The returned middleware will only parse form data encoded as `application/x-www-form-urlencoded`.
+ *
+ * @param key - Key to use for the form data property
+ * @param schema - Schema to validate the form data with
+ */
 export function form<
   const K extends string,
   const T extends ZFromStringsMap,

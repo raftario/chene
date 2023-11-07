@@ -4,13 +4,52 @@ import { type Middleware } from "../middleware.js"
 import { type Context, type Json } from "../mod.js"
 import { BodyTypeError, BodyValidationError } from "./error.js"
 
+/**
+ * JSON body middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a `body` property
+ * containing the parsed JSON body.
+ */
 export function json<I extends Context, O>(): Middleware<I, O, I & { body: Json }, O>
+/**
+ * JSON body middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a `body` property
+ * containing the JSON body parsed and validated with the given schema.
+ *
+ * @param schema - Schema to validate the JSON body with
+ */
 export function json<const T extends ZodType, I extends Context, O>(
   schema: T,
 ): Middleware<I, O, I & { body: z.infer<T> }, O>
+/**
+ * JSON body middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a property with the given key
+ * containing the parsed JSON body.
+ *
+ * @param key - Key to use for the JSON body property
+ */
 export function json<const K extends string, I extends Context, O>(
   key: K,
 ): Middleware<I, O, I & { [body in K]: Json }, O>
+/**
+ * JSON body middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a property with the given key
+ * containing the JSON body parsed and validated with the given schema.
+ *
+ * @param key - Key to use for the JSON body property
+ * @param schema - Schema to validate the JSON body with
+ */
 export function json<
   const K extends string,
   const T extends ZodType,

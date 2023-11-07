@@ -3,18 +3,57 @@ import { type Context, type z } from "../mod.js"
 import { fromStringsMap, type ZFromStringsMap } from "../validation/string.js"
 import { QueryValidationError } from "./error.js"
 
+/**
+ * Query string middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a `query` property
+ * containing the parsed query string as {@link URLSearchParams}.
+ */
 export function query<I extends Context, O>(): Middleware<
   I,
   O,
   I & { query: URLSearchParams },
   O
 >
+/**
+ * Query string middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a `query` property
+ * containing the query parsed and validated with the given schema.
+ *
+ * @param schema - Schema to validate the query string with
+ */
 export function query<const T extends ZFromStringsMap, I extends Context, O>(
   schema: T,
 ): Middleware<I, O, I & { query: z.infer<T> }, O>
+/**
+ * Query string middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a property with the given key
+ * containing the parsed query string as {@link URLSearchParams}.
+ *
+ * @param key - Key to use for the query string property
+ */
 export function query<const K extends string, I extends Context, O>(
   key: K,
 ): Middleware<I, O, I & { [body in K]: URLSearchParams }, O>
+/**
+ * Query string middleware factory
+ *
+ * @remarks
+ *
+ * The returned middleware enriches the input with a property with the given key
+ * containing the query parsed and validated with the given schema.
+ *
+ * @param key - Key to use for the query string property
+ * @param schema - Schema to validate the query string with
+ */
 export function query<
   const K extends string,
   const T extends ZFromStringsMap,

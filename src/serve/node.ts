@@ -16,6 +16,13 @@ import {
 import { status as statusResponse } from "../response.js"
 import { makeHandler, withDefaults } from "./shared.js"
 
+/**
+ * Serves the given handler with Node.js' HTTP/S server
+ *
+ * @param handler - Root middleware suitable as a request handler
+ * @param options - Options for the server
+ * @returns Server instance
+ */
 export function serve(
   handler: Handler,
   options: ServeOptions | TlsServeOptions,
