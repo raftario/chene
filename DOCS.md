@@ -6,7 +6,7 @@ At a high level `chêne` is built on the same concept of middleware chain as `ex
 Given the heavy focus on proper types, `chêne` integrates with [`zod`](https://zod.dev) to ensure data coming in has the expected type. Proper validation should be the default, not something that needs to be manually added on top of user logic.
 
 ```ts
-import { body, router, z } from "chene"
+import { body, response, router, z } from "chene"
 
 const signupData = z.object({
   email: z.string().email(),
