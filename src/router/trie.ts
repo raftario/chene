@@ -289,12 +289,12 @@ function update<T, R>(
 export type Match<Path extends string> = Path extends `${infer Prefix}/`
   ? Match<Prefix>
   : Path extends `${infer Prefix}*${infer Any}`
-  ? Match<Prefix> & { [K in Any]: string }
-  : Path extends `${infer Prefix}:${infer One}/${infer Suffix}`
-  ? Match<Prefix> & { [K in One]: string } & Match<Suffix>
-  : Path extends `${infer Prefix}:${infer One}`
-  ? Match<Prefix> & { [K in One]: string }
-  : Record<string, never>
+    ? Match<Prefix> & { [K in Any]: string }
+    : Path extends `${infer Prefix}:${infer One}/${infer Suffix}`
+      ? Match<Prefix> & { [K in One]: string } & Match<Suffix>
+      : Path extends `${infer Prefix}:${infer One}`
+        ? Match<Prefix> & { [K in One]: string }
+        : Record<string, never>
 
 export class Trie<T> {
   readonly #root: Branch<T> = {
