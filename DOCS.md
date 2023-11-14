@@ -55,7 +55,7 @@ With those settings set it's possible to pass JSX nodes to the `response.html` f
 
 ```tsx
 app.get("/hello/:name", ({ path }) =>
-  response.html(<p class="hello">Hello {path.name} !</p>),
+  response.html(<p className="hello">Hello {path.name} !</p>),
 )
 ```
 

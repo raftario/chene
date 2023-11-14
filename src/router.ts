@@ -79,10 +79,13 @@ type StoredMethods = Record<Method, StoredMethodHandler | undefined>
  * over multiple named parameters (`*name`). This means that `/hello/there` would be matched
  * before `/hello/:name` which would be matched before `/hello/*name`.
  *
+ * Routes are matched case insensitively. Of course captured path segments are not modified and
+ * their case is preserved.
+ *
  * @example Simple route handler
  * ```ts
  * const app = router()
- * app.get("/hello/:name", ({ path }) => response.text(`Hello ${path.name}!`))
+ * app.get("/hello/:name", ({ path }) => response.text(`Hello ${path.name} !`))
  * ```
  *
  * @example Chaining middleware to a route handler

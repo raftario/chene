@@ -101,6 +101,18 @@ function slot(code: number): number {
   return LOOKUP_DICTIONARY[code]!
 }
 
+function validate(route: string): void {
+  if (route.length === 0 || route.charCodeAt(0) !== SLASH) {
+    throw new Error("Route must start with a slash (/)")
+  }
+
+  for (let i = 0; i < route.length; i++) {
+    const c = route.charCodeAt(i)
+    const valid = slot(c) < DICTIONARY.length || c === COLON || c === STAR
+    if (!valid) throw new Error(`Invalid character in route (${route[i]})`)
+  }
+}
+
 /** Normalises a path before operating on it */
 function normalise(path: string): string {
   if (path.length > 1 && path.charCodeAt(path.length - 1) === SLASH)
@@ -225,8 +237,11 @@ function update<T, R>(
   if (c === COLON) {
     const verbatim = nonSlash(path)
 
-    if (node.one && node.one.verbatim !== verbatim) throw new Error("TODO")
-    else if (!node.one) {
+    if (node.one && node.one.verbatim !== verbatim) {
+      throw new Error(
+        `Cannot assign different names to same :named segment (${node.one.verbatim} vs ${verbatim})`,
+      )
+    } else if (!node.one) {
       const name = verbatim.slice(1)
 
       node.one = {
@@ -246,8 +261,11 @@ function update<T, R>(
   }
   // capture any segments
   else if (c === STAR) {
-    if (node.any && node.any.verbatim !== path) throw new Error("TODO")
-    else if (!node.any) {
+    if (node.any && node.any.verbatim !== path) {
+      throw new Error(
+        `Cannot assign different names to same *named segment (${node.any.verbatim} vs ${path})`,
+      )
+    } else if (!node.any) {
       const name = path.slice(1)
 
       node.any = {
@@ -310,12 +328,12 @@ export class Trie<T> {
     route: Route,
     value: (matched: Match<Route>) => T,
   ): void {
-    // TODO: validate
+    validate(route)
     update(
       normalise(route),
       this.#root,
       (node) => {
-        if (node.value !== undefined) throw new Error("TODO")
+        if (node.value !== undefined) throw new Error(`Conflicting route (${route}))`)
         node.value = value as Node<T>["value"]
       },
       this.#root.verbatim,
