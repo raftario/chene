@@ -51,13 +51,11 @@ function TodoList({ todos }: TodoListProps) {
   })
 
   const save =
-    items.length > 0 ? (
+    items.length > 0 ?
       <button type="submit" name="action" value="save">
         Save
       </button>
-    ) : (
-      "No TODOs"
-    )
+    : "No TODOs"
 
   return (
     <html>
