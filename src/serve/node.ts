@@ -69,12 +69,12 @@ export function serve(
   }
 
   const server =
-    "cert" in o && "key" in o
-      ? http2.createSecureServer(
-          { cert: o.cert, key: o.key },
-          (req, res) => void nodeHandler(req, res).catch(o.onError),
-        )
-      : http.createServer((req, res) => void nodeHandler(req, res).catch(o.onError))
+    "cert" in o && "key" in o ?
+      http2.createSecureServer(
+        { cert: o.cert, key: o.key },
+        (req, res) => void nodeHandler(req, res).catch(o.onError),
+      )
+    : http.createServer((req, res) => void nodeHandler(req, res).catch(o.onError))
 
   o.signal?.addEventListener?.("abort", () => server.close())
 
@@ -105,9 +105,9 @@ function convertRequest(
   req: http.IncomingMessage | http2.Http2ServerRequest,
 ): undici.Request {
   const protocol =
-    req.socket instanceof TLSSocket || req.headers["x-forwarded-proto"] === "https"
-      ? "https"
-      : "http"
+    req.socket instanceof TLSSocket || req.headers["x-forwarded-proto"] === "https" ?
+      "https"
+    : "http"
   const hostname = req.headers.host ?? req.headers[":authority"]
   const url = `${protocol}://${hostname as string}${req.url}`
 
