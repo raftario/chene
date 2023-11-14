@@ -38,4 +38,25 @@ app.get("/hello/:name", ({ path }) => response.text(`Hello ${path.name} !`))
 
 The handler input also always includes a `request` key containing a [standard Request object](https://developer.mozilla.org/docs/Web/API/Request) and the output is expected to be a [standard Response object](https://developer.mozilla.org/docs/Web/API/Response).
 
+Lastly, there's builtin JSX support, just set the right values in your `tsconfig.json`.
+
+```jsonc
+{
+  // ...
+  "compilerOptions": {
+    // ...
+    "jsx": "react-jsx",
+    "jsxImportSource": "chene"
+  }
+}
+```
+
+With those settings set it's possible to pass JSX nodes to the `response.html` function !
+
+```tsx
+app.get("/hello/:name", ({ path }) =>
+  response.html(<p class="hello">Hello {path.name} !</p>),
+)
+```
+
 And that's pretty much all you need to know to get started !
