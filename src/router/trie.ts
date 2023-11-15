@@ -101,6 +101,7 @@ function slot(code: number): number {
   return LOOKUP_DICTIONARY[code]!
 }
 
+/** Validates a route */
 function validate(route: string): void {
   if (route.length === 0 || route.charCodeAt(0) !== SLASH) {
     throw new Error("Route must start with a slash (/)")
@@ -168,34 +169,36 @@ function match<T>(
   path: string,
   node: Node<T>,
   matched: Record<string, unknown>,
-  backtrack: { path: typeof path; node: typeof node; matched: typeof matched }[] = [],
+  backtracks: { path: typeof path; node: typeof node; matched: typeof matched }[] = [],
 ): T | undefined {
-  const b = () => {
-    while (backtrack.length !== 0) {
-      const { path, node, matched } = backtrack.pop()!
-      const value = match(path, node, matched, [])
-      if (value !== undefined) {
-        return value
-      }
-    }
-    return undefined
-  }
-
   const consumed = node.matcher(path, matched)
   path = path.slice(consumed)
 
   if (path.length === 0 && node.value !== undefined) return node.value(matched)
 
   // didn't match or matched everything but no associated value
-  if (consumed === 0 || path.length === 0) return b()
+  if (consumed === 0 || path.length === 0) return backtrack(backtracks)
 
-  if (node.one) backtrack.push({ path, node: node.one, matched: { ...matched } })
-  if (node.any) backtrack.push({ path, node: node.any, matched: { ...matched } })
+  if (node.one) backtracks.push({ path, node: node.one, matched: { ...matched } })
+  if (node.any) backtracks.push({ path, node: node.any, matched: { ...matched } })
 
-  const next = node.literal?.[slot(path.charCodeAt(0))]
-  if (!next) return b()
+  const next = node.literal![slot(path.charCodeAt(0))]
+  if (!next) return backtrack(backtracks)
 
-  return match(path, next, matched, backtrack)
+  return match(path, next, matched, backtracks)
+}
+
+function backtrack<T>(
+  backtracks: { path: string; node: Node<T>; matched: Record<string, unknown> }[],
+): T | undefined {
+  while (backtracks.length !== 0) {
+    const { path, node, matched } = backtracks.pop()!
+    const value = match(path, node, matched, [])
+    if (value !== undefined) {
+      return value
+    }
+  }
+  return undefined
 }
 
 function update<T, R>(
