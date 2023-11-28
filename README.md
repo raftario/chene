@@ -18,6 +18,10 @@ sometimes it makes more sense to use typescript
 
 i don't really like `x`.js
 
+## can you support commonjs
+
+no.
+
 ## can you change the license
 
 no.
