@@ -17,7 +17,7 @@ jobs:
 
       - run: npm run docs
 
-      - uses: actions/upload-pages-artifact@v2
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/docs
 
@@ -27,10 +27,11 @@ jobs:
     permissions:
       pages: write
       id-token: write
+      actions: read
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
 
     steps:
       - id: deploy
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
