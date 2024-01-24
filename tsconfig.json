@@ -9,6 +9,6 @@
     "composite": true,
     "resolveJsonModule": true,
     "stripInternal": true,
-    "exactOptionalPropertyTypes": false
-  }
+    "exactOptionalPropertyTypes": false,
+  },
 }

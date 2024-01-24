@@ -1,5 +1,5 @@
 {
   "extends": [".."],
   "include": ["."],
-  "references": [{ "path": ".." }]
+  "references": [{ "path": ".." }],
 }
