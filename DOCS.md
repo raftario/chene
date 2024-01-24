@@ -48,7 +48,7 @@ CommonJS is not supported, only ESM. This needs to be reflected in you `package.
 ```jsonc
 {
   // ...
-  "type": "module"
+  "type": "module",
 }
 ```
 
@@ -60,8 +60,8 @@ When using TypeScript, the `module` and `moduleResolution` compiler options shou
   "compilerOptions": {
     // ...
     "module": "node16",
-    "moduleResolution": "node16"
-  }
+    "moduleResolution": "node16",
+  },
 }
 ```
 
@@ -73,8 +73,8 @@ Lastly, there's builtin JSX support, just set the right compiler options in your
   "compilerOptions": {
     // ...
     "jsx": "react-jsx",
-    "jsxImportSource": "chene"
-  }
+    "jsxImportSource": "chene",
+  },
 }
 ```
 

@@ -10,7 +10,7 @@
     "paths": {
       "chene": ["../src/mod.ts"],
       "chene/node": ["../src/node.ts"],
-      "chene/otel": ["../src/otel.ts"]
-    }
-  }
+      "chene/otel": ["../src/otel.ts"],
+    },
+  },
 }
