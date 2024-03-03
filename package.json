@@ -25,6 +25,7 @@
     "dependencies": "node patch.js",
     "build": "rollup -c --forceExit",
     "docs": "typedoc",
+    "fix": "prettier --write . && eslint --ignore-path .gitignore --fix .",
     "lint": "prettier --check . && eslint --ignore-path .gitignore .",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest"
   },
