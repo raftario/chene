@@ -85,10 +85,12 @@ type Branch<T> = Node<T> & {
   literal: (Branch<T> | undefined)[]
 }
 
-type TrieSummary =
-  | symbol
+const LEAF = Symbol.for("leaf")
+export type TrieLeaf = typeof LEAF
+export type TrieSummary =
+  | TrieLeaf
   | { [segment: string]: TrieSummary }
-  | [symbol, { [segment: string]: TrieSummary }]
+  | [TrieLeaf, { [segment: string]: TrieSummary }]
 
 /**
  * Returns the slot of the given character codepoint in the dictionary,
@@ -346,7 +348,6 @@ export class Trie<T> {
   public summary(): TrieSummary {
     const s = (node: Node<T>): TrieSummary => {
       const summary: TrieSummary = {}
-      const leaf = Symbol.for("leaf")
 
       const children: (Node<T> | undefined)[] = node.literal ?? []
       if (node.one) children.push(node.one)
@@ -359,11 +360,11 @@ export class Trie<T> {
       }
 
       if (node.value !== undefined && Object.keys(summary).length === 0) {
-        return leaf
+        return LEAF
       } else if (node.value === undefined) {
         return summary
       } else {
-        return [leaf, summary]
+        return [LEAF, summary]
       }
     }
 

@@ -12,7 +12,7 @@ updates:
         update-types:
           - minor
           - patch
-      devDependencies:
+      dev-dependencies:
         dependency-type: development
         update-types:
           - minor
